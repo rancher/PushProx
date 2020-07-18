@@ -43,12 +43,16 @@ import (
 )
 
 var (
-	myFqdn      = kingpin.Flag("fqdn", "FQDN to register with").Default(fqdn.Get()).String()
-	proxyURL    = kingpin.Flag("proxy-url", "Push proxy to talk to.").Required().String()
-	caCertFile  = kingpin.Flag("tls.cacert", "<file> CA certificate to verify peer against").String()
-	tlsCert     = kingpin.Flag("tls.cert", "<cert> Client certificate file").String()
-	tlsKey      = kingpin.Flag("tls.key", "<key> Private key file").String()
-	metricsAddr = kingpin.Flag("metrics-addr", "Serve Prometheus metrics at this address").Default(":9369").String()
+	myFqdn             = kingpin.Flag("fqdn", "FQDN to register with").Default(fqdn.Get()).String()
+	proxyURL           = kingpin.Flag("proxy-url", "Push proxy to talk to.").Required().String()
+	caCertFile         = kingpin.Flag("tls.cacert", "<file> CA certificate to verify peer against").String()
+	tlsCert            = kingpin.Flag("tls.cert", "<cert> Client certificate file").String()
+	tlsKey             = kingpin.Flag("tls.key", "<key> Private key file").String()
+	metricsAddr        = kingpin.Flag("metrics-addr", "Serve Prometheus metrics at this address").Default(":9369").String()
+	tokenPath          = kingpin.Flag("token-path", "Uses an OAuth 2.0 Bearer token found in this path to make scrape requests").String()
+	insecureSkipVerify = kingpin.Flag("insecure-skip-verify", "Disable SSL security checks for client").Default("false").Bool()
+	useLocalhost       = kingpin.Flag("use-localhost", "Use 127.0.0.1 to scrape metrics instead of FQDN").Default("false").Bool()
+	allowPort          = kingpin.Flag("allow-port", "Restricts the proxy to only being allowed to scrape the given port").Default("*").String()
 )
 
 var (
@@ -116,9 +120,30 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 		request.URL.RawQuery = params.Encode()
 	}
 
+	if *tokenPath != "" {
+		token, err := ioutil.ReadFile(*tokenPath)
+		if err != nil {
+			c.handleErr(request, client, fmt.Errorf("cannot read token from token-path"))
+			return
+		}
+		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+		request.URL.Scheme = "https"
+	}
+
 	if request.URL.Hostname() != *myFqdn {
 		c.handleErr(request, client, errors.New("scrape target doesn't match client fqdn"))
 		return
+	}
+
+	port := request.URL.Port()
+	if len(port) > 0 {
+		if *allowPort != "*" && *allowPort != port {
+			c.handleErr(request, client, fmt.Errorf("client does not have permissions to scrape port %s", port))
+			return
+		}
+		if useLocalhost != nil && *useLocalhost {
+			request.URL.Host = fmt.Sprintf("127.0.0.1:%s", port)
+		}
 	}
 
 	scrapeResp, err := client.Do(request)
@@ -262,6 +287,10 @@ func main() {
 		tlsConfig.BuildNameToCertificate()
 	}
 
+	if insecureSkipVerify != nil {
+		tlsConfig.InsecureSkipVerify = *insecureSkipVerify
+	}
+
 	if *caCertFile != "" {
 		caCert, err := ioutil.ReadFile(*caCertFile)
 		if err != nil {
@@ -283,6 +312,11 @@ func main() {
 				level.Warn(coordinator.logger).Log("msg", "ListenAndServe", "err", err)
 			}
 		}()
+	}
+
+	if useLocalhost != nil && *useLocalhost && *allowPort == "*" {
+		level.Error(coordinator.logger).Log("msg", "client must restrict access on localhost to a single port")
+		os.Exit(1)
 	}
 
 	transport := &http.Transport{
