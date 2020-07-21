@@ -3,7 +3,8 @@ set -e
 
 source $(dirname $0)/version
 
-cd $(dirname $0)/..
+cd $(dirname $0)/../
+
 
 mkdir -p bin
 if [ "$(uname)" = "Linux" ]; then
@@ -11,8 +12,14 @@ if [ "$(uname)" = "Linux" ]; then
 fi
 LINKFLAGS="-X github.com/rancher/pushprox.Version=$VERSION"
 LINKFLAGS="-X github.com/rancher/pushprox.GitCommit=$COMMIT $LINKFLAGS"
-CGO_ENABLED=0 go build -ldflags "$LINKFLAGS $OTHER_LINKFLAGS" -o bin/pushprox
-if [ "$CROSS" = "true" ] && [ "$ARCH" = "amd64" ]; then
-    GOOS=darwin go build -ldflags "$LINKFLAGS" -o bin/pushprox-darwin
-    GOOS=windows go build -ldflags "$LINKFLAGS" -o bin/pushprox-windows
-fi
+
+for COMPONENT in proxy client
+do
+    pushd ./cmd/$COMPONENT
+    CGO_ENABLED=0 go build -ldflags "$LINKFLAGS $OTHER_LINKFLAGS" -o ../../bin/pushprox-${COMPONENT}
+    if [ "$CROSS" = "true" ] && [ "$ARCH" = "amd64" ]; then
+        GOOS=darwin go build -ldflags "$LINKFLAGS" -o ../../bin/pushprox-${COMPONENT}-darwin
+        GOOS=windows go build -ldflags "$LINKFLAGS" -o ../../bin/pushprox-${COMPONENT}-windows
+    fi
+    popd
+done

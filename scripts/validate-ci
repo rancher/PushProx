@@ -3,7 +3,12 @@ set -e
 
 cd $(dirname $0)/..
 
-go generate
+for COMPONENT in proxy client
+do
+    pushd ./cmd/${COMPONENT}
+    go generate
+    popd
+done
 
 source ./scripts/version
 

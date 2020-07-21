@@ -5,17 +5,25 @@ cd $(dirname $0)/..
 
 echo Running validation
 
-PACKAGES="$(go list ./...)"
+for COMPONENT in proxy client
+do
+    pushd ./cmd/${COMPONENT}
+    
+    PACKAGES="$(go list ./...)"
 
-if ! command -v golangci-lint; then
-    echo Skipping validation: no golangci-lint available
-    exit
-fi
+    if ! command -v golangci-lint; then
+        echo "Skipping validation for ${COMPONENT}: no golangci-lint available"
+        exit
+    fi
 
-echo Running validation
+    echo "Running validation for ${COMPONENT}"
 
-echo Running: golangci-lint
-golangci-lint run
+    echo "Running: golangci-lint for ${COMPONENT}"
+    golangci-lint run
 
-echo Running: go fmt
-test -z "$(go fmt ${PACKAGES} | tee /dev/stderr)"
+    echo "Running: go fmt for ${COMPONENT}:"
+
+    test -z "$(go fmt ${PACKAGES} | tee /dev/stderr)"
+
+    popd
+done

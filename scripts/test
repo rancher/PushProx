@@ -3,5 +3,10 @@ set -e
 
 cd $(dirname $0)/..
 
-echo Running tests
-go test -cover -tags=test ./...
+for COMPONENT in proxy client
+do
+    pushd ./cmd/${COMPONENT}
+    echo "Running tests for ${COMPONENT}"
+    go test -cover -tags=test ./...
+    popd
+done

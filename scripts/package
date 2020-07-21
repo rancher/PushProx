@@ -6,13 +6,15 @@ source $(dirname $0)/version
 cd $(dirname $0)/..
 
 mkdir -p dist/artifacts
-cp bin/pushprox dist/artifacts/pushprox${SUFFIX}
+for COMPONENT in proxy client
+do
+    cp bin/pushprox-${COMPONENT} dist/artifacts/pushprox-${COMPONENT}${SUFFIX}
+    IMAGE=${REPO}/pushprox-${COMPONENT}:${TAG}
+    DOCKERFILE=package/${COMPONENT}/Dockerfile
+    if [ -e ${DOCKERFILE}.${ARCH} ]; then
+        DOCKERFILE=${DOCKERFILE}.${ARCH}
+    fi
 
-IMAGE=${REPO}/pushprox:${TAG}
-DOCKERFILE=package/Dockerfile
-if [ -e ${DOCKERFILE}.${ARCH} ]; then
-    DOCKERFILE=${DOCKERFILE}.${ARCH}
-fi
-
-docker build -f ${DOCKERFILE} -t ${IMAGE} .
-echo Built ${IMAGE}
+    docker build -f ${DOCKERFILE} -t ${IMAGE} .
+    echo Built ${IMAGE}
+done
