@@ -1,8 +1,6 @@
-/.build/
-/.release/
-/.tarballs/
-/node_exporter*
-/prometheus*
-/data/
-/pushprox-client
-/pushprox-proxy
+/.dapper
+/.cache
+/bin
+/dist
+*.swp
+.idea

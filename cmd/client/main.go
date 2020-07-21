@@ -39,7 +39,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
-	"github.com/prometheus-community/pushprox/util"
+	"github.com/rancher/pushprox/util"
 )
 
 var (

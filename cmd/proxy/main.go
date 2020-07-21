@@ -34,7 +34,7 @@ import (
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 
-	"github.com/prometheus-community/pushprox/util"
+	"github.com/rancher/pushprox/util"
 )
 
 const (

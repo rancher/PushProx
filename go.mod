@@ -1,4 +1,4 @@
-module github.com/prometheus-community/pushprox
+module github.com/rancher/pushprox
 
 go 1.13
 
