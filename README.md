@@ -1,16 +1,22 @@
-# PushProx [![CircleCI](https://circleci.com/gh/prometheus-community/PushProx.svg?style=shield)](https://circleci.com/gh/prometheus-community/PushProx)
+# PushProx
 
 PushProx is a client and proxy that allows transversing of NAT and other
 similar network topologies by Prometheus, while still following the pull model.
 
 While this is reasonably robust in practice, this is a work in progress.
 
+# Rancher Fork
+
+This fork of [prometheus-community/PushProx](https://github.com/prometheus-community/PushProx) introduces a set of changes that enable the PushProx client and proxy to be used as part of the [`cattle-pushprox` Helm chart](https://github.com/rancher/dev-charts/tree/master/packages/cattle-pushprox), which is primarily used to deploy Prometheus exporters for Rancher Monitoring V2. 
+
+All notable changes from the upstream PushProx repository are recorded in `CHANGELOG.md`.
+
 ## Running
 
 First build the proxy and client:
 
 ```
-git clone https://github.com/prometheus-community/pushprox.git
+git clone https://github.com/rancher/pushprox.git
 cd pushprox
 make build
 ```
@@ -70,8 +76,23 @@ PushProx passes all HTTP headers transparently, features like compression and ac
 
 ## Security
 
-There is no authentication or authorisation included, a reverse proxy can be
+There is no authentication or authorization included, a reverse proxy can be
 put in front though to add these.
 
 Running the client allows those with access to the proxy or the client to access
 all network services on the machine hosting the client.
+
+## License
+Copyright (c) 2019 [Rancher Labs, Inc.](http://rancher.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

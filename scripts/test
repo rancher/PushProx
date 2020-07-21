@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+cd $(dirname $0)/..
+
+for COMPONENT in proxy client
+do
+    pushd ./cmd/$COMPONENT
+    echo Running tests
+    go test -cover -tags=test ./...
+    popd
+done
