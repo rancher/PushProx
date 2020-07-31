@@ -177,8 +177,8 @@ steps:
     platforms:
       - linux/amd64
       - linux/arm64
-    target: "rancher/pushprox-client:${DRONE_TAG}"
-    template: "rancher/pushprox-client:${DRONE_TAG}-ARCH"
+    target: "rancher/pushprox-client:${DRONE_TAG}-client"
+    template: "rancher/pushprox-client:${DRONE_TAG}-client-ARCH"
   when:
     instance:
     - drone-publish.rancher.io
@@ -198,8 +198,8 @@ steps:
     platforms:
       - linux/amd64
       - linux/arm64
-    target: "rancher/pushprox-proxy:${DRONE_TAG}"
-    template: "rancher/pushprox-proxy:${DRONE_TAG}-ARCH"
+    target: "rancher/pushprox-proxy:${DRONE_TAG}-proxy"
+    template: "rancher/pushprox-proxy:${DRONE_TAG}-proxy-ARCH"
   when:
     instance:
     - drone-publish.rancher.io
