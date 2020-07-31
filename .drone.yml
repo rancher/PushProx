@@ -20,7 +20,6 @@ steps:
   settings:
     api_key:
       from_secret: github_token
-    prerelease: true
     checksum:
     - sha256
     checksum_file: CHECKSUMsum-amd64.txt
@@ -36,14 +35,33 @@ steps:
     event:
     - tag
 
-- name: docker-publish
+- name: docker-publish-client
   image: plugins/docker
   settings:
-    dockerfile: package/Dockerfile
+    dockerfile: package/client/Dockerfile
     password:
       from_secret: docker_password
-    repo: "rancher/pushprox"
-    tag: "${DRONE_TAG}-amd64"
+    repo: "rancher/pushprox-client"
+    tag: "${DRONE_TAG}-client-amd64"
+    username:
+      from_secret: docker_username
+  when:
+    instance:
+    - drone-publish.rancher.io
+    ref:
+    - refs/head/master
+    - refs/tags/*
+    event:
+    - tag
+
+- name: docker-publish-proxy
+  image: plugins/docker
+  settings:
+    dockerfile: package/proxy/Dockerfile
+    password:
+      from_secret: docker_password
+    repo: "rancher/pushprox-proxy"
+    tag: "${DRONE_TAG}-proxy-amd64"
     username:
       from_secret: docker_username
   when:
@@ -82,7 +100,6 @@ steps:
   settings:
     api_key:
       from_secret: github_token
-    prerelease: true
     checksum:
     - sha256
     checksum_file: CHECKSUMsum-arm64.txt
@@ -98,14 +115,14 @@ steps:
     event:
     - tag
 
-- name: docker-publish
+- name: docker-publish-client
   image: plugins/docker
   settings:
-    dockerfile: package/Dockerfile
+    dockerfile: package/client/Dockerfile
     password:
       from_secret: docker_password
-    repo: "rancher/pushprox"
-    tag: "${DRONE_TAG}-arm64"
+    repo: "rancher/pushprox-client"
+    tag: "${DRONE_TAG}-client-arm64"
     username:
       from_secret: docker_username
   when:
@@ -117,57 +134,14 @@ steps:
     event:
     - tag
 
-volumes:
-- name: docker
-  host:
-    path: /var/run/docker.sock
-
----
-kind: pipeline
-name: arm
-
-platform:
-  os: linux
-  arch: arm
-
-steps:
-- name: build
-  image: rancher/dapper:v0.4.1
-  commands:
-  - dapper ci
-  volumes:
-  - name: docker
-    path: /var/run/docker.sock
-
-- name: github_binary_release
-  image: plugins/github-release
-  settings:
-    api_key:
-      from_secret: github_token
-    prerelease: true
-    checksum:
-    - sha256
-    checksum_file: CHECKSUMsum-arm.txt
-    checksum_flatten: true
-    files:
-    - "dist/artifacts/*"
-  when:
-    instance:
-    - drone-publish.rancher.io
-    ref:
-    - refs/head/master
-    - refs/tags/*
-    event:
-    - tag
-
-- name: docker-publish
+- name: docker-publish-proxy
   image: plugins/docker
   settings:
-    dockerfile: package/Dockerfile
+    dockerfile: package/proxy/Dockerfile
     password:
       from_secret: docker_password
-    repo: "rancher/pushprox"
-    tag: "${DRONE_TAG}-arm"
+    repo: "rancher/pushprox-proxy"
+    tag: "${DRONE_TAG}-proxy-arm64"
     username:
       from_secret: docker_username
   when:
@@ -193,7 +167,7 @@ platform:
   arch: amd64
 
 steps:
-- name: manifest
+- name: manifest-client
   image: plugins/manifest:1.0.2
   settings:
     username:
@@ -203,9 +177,29 @@ steps:
     platforms:
       - linux/amd64
       - linux/arm64
-      - linux/arm
-    target: "rancher/pushprox:${DRONE_TAG}"
-    template: "rancher/pushprox:${DRONE_TAG}-ARCH"
+    target: "rancher/pushprox-client:${DRONE_TAG}"
+    template: "rancher/pushprox-client:${DRONE_TAG}-ARCH"
+  when:
+    instance:
+    - drone-publish.rancher.io
+    ref:
+    - refs/head/master
+    - refs/tags/*
+    event:
+    - tag
+
+- name: manifest-proxy
+  image: plugins/manifest:1.0.2
+  settings:
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    target: "rancher/pushprox-proxy:${DRONE_TAG}"
+    template: "rancher/pushprox-proxy:${DRONE_TAG}-ARCH"
   when:
     instance:
     - drone-publish.rancher.io
@@ -218,4 +212,3 @@ steps:
 depends_on:
 - amd64
 - arm64
-- arm
