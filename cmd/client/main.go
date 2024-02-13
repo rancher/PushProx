@@ -51,7 +51,7 @@ var (
 	metricsAddr        = kingpin.Flag("metrics-addr", "Serve Prometheus metrics at this address").Default(":9369").String()
 	tokenPath          = kingpin.Flag("token-path", "Uses an OAuth 2.0 Bearer token found in this path to make scrape requests").String()
 	insecureSkipVerify = kingpin.Flag("insecure-skip-verify", "Disable SSL security checks for client").Default("false").Bool()
-	useLocalhost       = kingpin.Flag("use-localhost", "Use 127.0.0.1 to scrape metrics instead of FQDN").Default("false").Bool()
+	useLocalhost       = kingpin.Flag("use-localhost", "Use localhost to scrape metrics instead of FQDN").Default("false").Bool()
 	allowPort          = kingpin.Flag("allow-port", "Restricts the proxy to only being allowed to scrape the given port").Default("*").String()
 
 	retryInitialWait = kingpin.Flag("proxy.retry.initial-wait", "Amount of time to wait after proxy failure").Default("1s").Duration()
@@ -154,7 +154,7 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 			return
 		}
 		if useLocalhost != nil && *useLocalhost {
-			request.URL.Host = fmt.Sprintf("127.0.0.1:%s", port)
+			request.URL.Host = fmt.Sprintf("localhost:%s", port)
 		}
 	}
 
