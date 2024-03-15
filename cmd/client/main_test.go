@@ -30,7 +30,7 @@ func (tl *TestLogger) Log(vars ...interface{}) error {
 }
 
 func prepareTest() (*httptest.Server, Coordinator) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintln(w, "GET /index.html HTTP/1.0\n\nOK")
 	}))

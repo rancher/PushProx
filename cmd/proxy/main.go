@@ -155,7 +155,7 @@ func (h *httpHandler) handlePoll(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleListClients handles requests to list available clients as a JSON array.
-func (h *httpHandler) handleListClients(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) handleListClients(w http.ResponseWriter, _ *http.Request) {
 	known := h.coordinator.KnownClients()
 	targets := make([]*targetGroup, 0, len(known))
 	for _, k := range known {
