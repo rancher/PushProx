@@ -1,0 +1,29 @@
+name: Rancher PushProx CI
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+
+jobs:
+  build:
+    name : Build, test  & validate
+    runs-on : ubuntu-latest
+    strategy:
+      matrix:
+          include:
+            - platform: linux/amd64
+            - platform: linux/arm64
+    steps:
+      - name : Checkout repository
+        uses : actions/checkout@v4
+      - name : Set up Go
+        uses : actions/setup-go@v5
+        with:
+          go-version: 1.22
+      - name : CI
+        run : make ci
