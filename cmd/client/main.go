@@ -244,7 +244,7 @@ func (c *Coordinator) loop(bo backoff.BackOff, client *http.Client) {
 	}
 
 	for {
-		if err := backoff.RetryNotify(op, bo, func(err error, _ time.Duration) {
+		if err := backoff.RetryNotify(op, bo, func(_ error, _ time.Duration) {
 			pollErrorCounter.Inc()
 		}); err != nil {
 			level.Error(c.logger).Log("err", err)
