@@ -28,7 +28,7 @@ import (
 	"strings"
 	"time"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	kingpin "github.com/alecthomas/kingpin/v2"
 
 	"github.com/Showmax/go-fqdn"
 	"github.com/cenkalti/backoff/v4"
