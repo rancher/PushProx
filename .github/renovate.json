@@ -1,0 +1,7 @@
+{
+  "extends": [
+    "github>rancher/renovate-config#release",
+    "group:all"
+  ],
+  "baseBranches": ["master"]
+}
