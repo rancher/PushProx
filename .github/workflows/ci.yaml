@@ -9,6 +9,9 @@ on:
       - 'CODEOWNERS'
       - 'LICENSE'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name : Build, test  & validate
