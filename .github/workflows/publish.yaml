@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile.proxy
+          file: Dockerfile.client
           push: true
           tags: ${{ env.REGISTRY }}/rancher/pushprox-client:${{ env.TAG_NAME }}-client
           platforms: linux/amd64,linux/arm64
@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile.client
+          file: Dockerfile.proxy
           push: true
           tags: ${{ env.REGISTRY }}/rancher/pushprox-proxy:${{ env.TAG_NAME }}-proxy
           platforms : linux/amd64,linux/arm64
