@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -52,7 +53,7 @@ var (
 	tokenPath          = kingpin.Flag("token-path", "Uses an OAuth 2.0 Bearer token found in this path to make scrape requests").String()
 	insecureSkipVerify = kingpin.Flag("insecure-skip-verify", "Disable SSL security checks for client").Default("false").Bool()
 	useLocalhost       = kingpin.Flag("use-localhost", "Use 127.0.0.1 to scrape metrics instead of FQDN").Default("false").Bool()
-	allowPort          = kingpin.Flag("allow-port", "Restricts the proxy to only being allowed to scrape the given port").Default("*").String()
+	allowPorts         = kingpin.Flag("allow-port", "Restricts the proxy to only being allowed to scrape the given ports. Can be specified multiple times for multiple ports.").Default("*").Strings()
 
 	retryInitialWait = kingpin.Flag("proxy.retry.initial-wait", "Amount of time to wait after proxy failure").Default("1s").Duration()
 	retryMaxWait     = kingpin.Flag("proxy.retry.max-wait", "Maximum amount of time to wait between proxy poll retries").Default("5s").Duration()
@@ -148,8 +149,9 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	}
 
 	port := request.URL.Port()
+
 	if len(port) > 0 {
-		if *allowPort != "*" && *allowPort != port {
+		if !slices.Contains(*allowPorts, "*") && !slices.Contains(*allowPorts, port) {
 			c.handleErr(request, client, fmt.Errorf("client does not have permissions to scrape port %s", port))
 			return
 		}
@@ -309,8 +311,13 @@ func main() {
 		}()
 	}
 
-	if useLocalhost != nil && *useLocalhost && *allowPort == "*" {
-		level.Error(coordinator.logger).Log("msg", "client must restrict access on localhost to a single port")
+	if len(*allowPorts) > 1 && slices.Contains(*allowPorts, "*") {
+		level.Error(coordinator.logger).Log("msg", "Invalid specification: '*' cannot be specified along with other ports.")
+		os.Exit(1)
+	}
+
+	if useLocalhost != nil && *useLocalhost && len(*allowPorts) == 1 && (*allowPorts)[0] == "*" {
+		level.Error(coordinator.logger).Log("msg", "Client must restrict access on localhost to specific ports")
 		os.Exit(1)
 	}
 
