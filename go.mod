@@ -10,8 +10,8 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.19.1
-	github.com/prometheus/common v0.55.0
+	github.com/prometheus/client_golang v1.20.5
+	github.com/prometheus/common v0.60.1
 )
 
 require (
