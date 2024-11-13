@@ -10,6 +10,6 @@ RUN go mod download
 COPY . .
 RUN make ci
 
-FROM alpine:3.20.2
+FROM alpine:3.20.3
 COPY --from=builder /usr/src/app/bin/pushprox-client /usr/bin
 CMD ["pushprox-client"]
