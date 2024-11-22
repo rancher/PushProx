@@ -20,19 +20,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 
 	kingpin "github.com/alecthomas/kingpin/v2"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/promlog"
-	"github.com/prometheus/common/promlog/flag"
+	"github.com/prometheus/common/promslog"
+	"github.com/prometheus/common/promslog/flag"
 
 	"github.com/rancher/pushprox/util"
 )
@@ -86,13 +84,13 @@ type targetGroup struct {
 }
 
 type httpHandler struct {
-	logger      log.Logger
+	logger      *slog.Logger
 	coordinator *Coordinator
 	mux         http.Handler
 	proxy       http.Handler
 }
 
-func newHTTPHandler(logger log.Logger, coordinator *Coordinator, mux *http.ServeMux) *httpHandler {
+func newHTTPHandler(logger *slog.Logger, coordinator *Coordinator, mux *http.ServeMux) *httpHandler {
 	h := &httpHandler{logger: logger, coordinator: coordinator, mux: mux}
 
 	// api handlers
@@ -129,29 +127,31 @@ func (h *httpHandler) handlePush(w http.ResponseWriter, r *http.Request) {
 	io.Copy(buf, r.Body)
 	scrapeResult, err := http.ReadResponse(bufio.NewReader(buf), nil)
 	if err != nil {
-		level.Error(h.logger).Log("msg", "Error reading pushed response:", "err", err)
+		h.logger.Error("Error reading pushed response:", "err", err)
 		http.Error(w, fmt.Sprintf("Error pushing: %s", err.Error()), 500)
 		return
 	}
-	level.Info(h.logger).Log("msg", "Got /push", "scrape_id", scrapeResult.Header.Get("Id"))
+	scrapeID := scrapeResult.Header.Get("Id")
+	h.logger.Info("Got /push", "scrape_id", scrapeID)
 	err = h.coordinator.ScrapeResult(scrapeResult)
 	if err != nil {
-		level.Error(h.logger).Log("msg", "Error pushing:", "err", err, "scrape_id", scrapeResult.Header.Get("Id"))
+		h.logger.Error("Error pushing:", "err", err, "scrape_id", scrapeID)
 		http.Error(w, fmt.Sprintf("Error pushing: %s", err.Error()), 500)
 	}
 }
 
 // handlePoll handles clients registering and asking for scrapes.
 func (h *httpHandler) handlePoll(w http.ResponseWriter, r *http.Request) {
-	fqdn, _ := ioutil.ReadAll(r.Body)
+	fqdn, _ := io.ReadAll(r.Body)
 	request, err := h.coordinator.WaitForScrapeInstruction(strings.TrimSpace(string(fqdn)))
 	if err != nil {
-		level.Info(h.logger).Log("msg", "Error WaitForScrapeInstruction:", "err", err)
+		h.logger.Info("Error WaitForScrapeInstruction:", "err", err)
 		http.Error(w, fmt.Sprintf("Error WaitForScrapeInstruction: %s", err.Error()), 408)
 		return
 	}
+	//nolint:errcheck // https://github.com/prometheus-community/PushProx/issues/111
 	request.WriteProxy(w) // Send full request as the body of the response.
-	level.Info(h.logger).Log("msg", "Responded to /poll", "url", request.URL.String(), "scrape_id", request.Header.Get("Id"))
+	h.logger.Info("Responded to /poll", "url", request.URL.String(), "scrape_id", request.Header.Get("Id"))
 }
 
 // handleListClients handles requests to list available clients as a JSON array.
@@ -161,8 +161,10 @@ func (h *httpHandler) handleListClients(w http.ResponseWriter, _ *http.Request) 
 	for _, k := range known {
 		targets = append(targets, &targetGroup{Targets: []string{k}})
 	}
+	w.Header().Set("Content-Type", "application/json")
+	//nolint:errcheck // https://github.com/prometheus-community/PushProx/issues/111
 	json.NewEncoder(w).Encode(targets)
-	level.Info(h.logger).Log("msg", "Responded to /clients", "client_count", len(known))
+	h.logger.Info("Responded to /clients", "client_count", len(known))
 }
 
 // handleProxy handles proxied scrapes from Prometheus.
@@ -174,7 +176,7 @@ func (h *httpHandler) handleProxy(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.coordinator.DoScrape(ctx, request)
 	if err != nil {
-		level.Error(h.logger).Log("msg", "Error scraping:", "err", err, "url", request.URL.String())
+		h.logger.Error("Error scraping:", "err", err, "url", request.URL.String())
 		http.Error(w, fmt.Sprintf("Error scraping %q: %s", request.URL.String(), err.Error()), 500)
 		return
 	}
@@ -192,23 +194,23 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	promlogConfig := promlog.Config{}
-	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
+	promslogConfig := promslog.Config{}
+	flag.AddFlags(kingpin.CommandLine, &promslogConfig)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
-	logger := promlog.New(&promlogConfig)
+	logger := promslog.New(&promslogConfig)
 	coordinator, err := NewCoordinator(logger)
 	if err != nil {
-		level.Error(logger).Log("msg", "Coordinator initialization failed", "err", err)
+		logger.Error("Coordinator initialization failed", "err", err)
 		os.Exit(1)
 	}
 
 	mux := http.NewServeMux()
 	handler := newHTTPHandler(logger, coordinator, mux)
 
-	level.Info(logger).Log("msg", "Listening", "address", *listenAddress)
+	logger.Info("Listening", "address", *listenAddress)
 	if err := http.ListenAndServe(*listenAddress, handler); err != nil {
-		level.Error(logger).Log("msg", "Listening failed", "err", err)
+		logger.Error("Listening failed", "err", err)
 		os.Exit(1)
 	}
 }
