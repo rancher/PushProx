@@ -7,12 +7,12 @@ toolchain go1.23.1
 require (
 	github.com/Showmax/go-fqdn v1.0.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/cenkalti/backoff/v4 v4.3.0
+	github.com/cenkalti/backoff/v5 v5.0.0
 	github.com/go-kit/kit v0.13.0
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.20.5
-	github.com/prometheus/common v0.60.1
+	github.com/prometheus/common v0.61.0
 )
 
 require (
