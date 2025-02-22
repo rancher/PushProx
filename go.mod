@@ -2,12 +2,13 @@ module github.com/rancher/pushprox
 
 go 1.23
 
-toolchain go1.23.6
+toolchain go1.24.0
 
 require (
 	github.com/Showmax/go-fqdn v1.0.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/cenkalti/backoff/v4 v4.3.0
+	github.com/cenkalti/backoff/v5 v5.0.2
 	github.com/google/uuid v1.6.0
 	github.com/prometheus/client_golang v1.21.0
 	github.com/prometheus/common v0.62.0
