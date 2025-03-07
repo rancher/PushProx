@@ -2,7 +2,7 @@ module github.com/rancher/pushprox
 
 go 1.23
 
-toolchain go1.24.1
+toolchain go1.23.6
 
 require (
 	github.com/Showmax/go-fqdn v1.0.0
