@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine3.20 AS builder
+FROM golang:1.24-alpine3.20 AS builder
 RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
 RUN apk add --no-cache make
 RUN apk add --no-cache bash
