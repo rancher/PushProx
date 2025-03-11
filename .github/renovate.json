@@ -34,11 +34,12 @@
       "allowedVersions": "<1.24.0"
     },
     {
-      "matchPackageNames": [
-        "/^github.com/cenkalti/backoff/"
+      "groupName": "Backoff Major Bumps",
+      "groupSlug": "backoff-major-bumps",
+      "matchPackagePatterns": [
+        "github.com/cenkalti/backoff/v"
       ],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
+      "matchUpdateTypes": ["major"]
     }
   ]
 }
