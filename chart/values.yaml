@@ -152,15 +152,15 @@ proxy:
   enabled: true
   # The port through which PushProx clients will communicate to the proxy
   port: 8080
-  
+
   # Resource limits
   resources: {}
-  
+
   # Options to select a node to run a single proxy deployment on
   nodeSelector: {}
   tolerations: []
 
   image:
     repository: rancher/pushprox-proxy
-    tag: v0.1.4-rancher2-proxy
+    tag: %TAG%
   command: ["pushprox-proxy"]
