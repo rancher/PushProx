@@ -22,6 +22,16 @@ SUFFIX="-${ARCH}"
 TAG=${TAG:-${VERSION}${SUFFIX}}
 REPO=${REPO:-rancher}
 
+HELM_IMAGE_TAG=${HELM_IMAGE_TAG:-${VERSION}}
+if [ "$VERSION" == "$COMMIT" ]; then
+  HELM_CHART_VERSION="0.0.0-dev.${COMMIT}"
+else
+  HELM_CHART_VERSION=${HELM_IMAGE_TAG/v/}
+fi
+
+echo $HELM_IMAGE_TAG
+echo $HELM_CHART_VERSION
+
 if echo $TAG | grep -q dirty; then
     TAG=dev
 fi
