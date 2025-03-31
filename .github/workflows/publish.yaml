@@ -10,10 +10,7 @@ env:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Build, test & validate
-        run: make ci
+    uses: ./.github/workflows/ci.yaml
   goreleaser:
     needs: [
       ci
