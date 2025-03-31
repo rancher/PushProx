@@ -4,7 +4,7 @@ set -e
 function edit-chart() {
     perl -i -pe '
     s/^version:.*/version: '"${1}"'/;
-    s/^appVersion:.*/appVersion: '"${1}"'/
+    s/^appVersion:.*/appVersion: '"${2}"'/
 ' build/chart/Chart.yaml
 
     perl -i -pe 's/%TAG%/'"${2}"'/' build/chart/values.yaml
