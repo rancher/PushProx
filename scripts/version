@@ -29,9 +29,16 @@ else
   HELM_CHART_VERSION=${HELM_IMAGE_TAG/v/}
 fi
 
-echo $HELM_IMAGE_TAG
-echo $HELM_CHART_VERSION
-
 if echo $TAG | grep -q dirty; then
-    TAG=dev
+    TAG="v0.0.0-dev.1-${COMMIT}"
+    HELM_IMAGE_TAG=$TAG
+    HELM_CHART_VERSION=${HELM_CHART_VERSION_DEV:-${HELM_IMAGE_TAG/v/}}
 fi
+
+function print_version_debug() {
+    echo "DIRTY: $DIRTY"
+    echo "HELM_IMAGE_TAG: $HELM_IMAGE_TAG";
+    echo "HELM_CHART_VERSION: $HELM_CHART_VERSION";
+    echo "REPO: $REPO; TAG: $TAG";
+}
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then print_version_debug "$1"; fi
