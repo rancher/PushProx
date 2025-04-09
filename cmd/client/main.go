@@ -34,7 +34,7 @@ import (
 	kingpin "github.com/alecthomas/kingpin/v2"
 
 	"github.com/Showmax/go-fqdn"
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/promslog"
