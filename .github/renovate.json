@@ -1,11 +1,15 @@
 {
   "extends": [
     "github>rancher/renovate-config#release",
-    "group:all",
+    "group:allNonMajor",
     "helpers:pinGitHubActionDigests"
   ],
   "baseBranches": ["master"],
   "packageRules": [
+    {
+      "matchPackageNames": ["go", "actions/setup-go"],
+      "enabled": false
+    },
     {
       "groupName": "GitHub Workflow Actions",
       "groupSlug": "gha-deps",
