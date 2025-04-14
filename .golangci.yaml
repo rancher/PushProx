@@ -1,0 +1,25 @@
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - /zz_generated_
+linters:
+  default: none
+  enable:
+    - govet
+    - ineffassign
+    - misspell
+    - revive
+  exclusions:
+    generated: lax
+    paths:
+      - /zz_generated_
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+version: "2"
