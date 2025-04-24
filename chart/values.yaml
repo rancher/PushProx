@@ -129,8 +129,8 @@ clients:
   affinity: {}
 
   image:
-    repository: rancher/pushprox-client
-    tag: %TAG%-client
+    repository: rancher/pushprox
+    tag: %TAG%
   command: ["pushprox-client"]
 
   copyCertsImage:
@@ -161,6 +161,6 @@ proxy:
   tolerations: []
 
   image:
-    repository: rancher/pushprox-proxy
-    tag: %TAG%-proxy
+    repository: rancher/pushprox
+    tag: %TAG%
   command: ["pushprox-proxy"]
