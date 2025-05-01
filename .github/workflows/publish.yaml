@@ -60,14 +60,36 @@ jobs:
             secret/data/github/repo/${{ github.repository }}/dockerhub/rancher/credentials password | DOCKER_PASSWORD ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials registry | PRIME_REGISTRY ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials username | PRIME_REGISTRY_USERNAME ;
-            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials password | PRIME_REGISTRY_PASSWORD
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials password | PRIME_REGISTRY_PASSWORD ;
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials registry | PRIME_STG_REGISTRY ;
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials username | PRIME_STG_REGISTRY_USERNAME ;
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials password | PRIME_STG_REGISTRY_PASSWORD ;
       - name : Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name : Setup go
         uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
         with:
           go-version: 1.23
-      - name: Build and push PushProx image
+      - name: Check SemVer Characteristics
+        id: semver_check
+        run: |
+          tag="${{ github.ref_name }}"
+          if [[ "$tag" == v* ]]; then
+            tag="${tag:1}"
+          fi
+          has_prerelease() { [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+- ]]; }
+          has_build_meta() { [[ "$1" =~ \+ ]]; }
+          if has_prerelease "$tag"; then
+            echo "HAS_PRERELEASE=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "HAS_PRERELEASE=false" >> "$GITHUB_OUTPUT"
+          fi
+          if has_build_meta "$tag"; then
+            echo "HAS_BUILD_META=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "HAS_BUILD_META=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build and push PushProx image (dockerhub and prime stg)
         uses: rancher/ecm-distro-tools/actions/publish-image@master
         with:
           image: 'pushprox'
@@ -77,6 +99,20 @@ jobs:
           public-repo: ${{ env.PUBLIC_REPO }}
           public-username: ${{ env.DOCKER_USERNAME || vars.DOCKER_USERNAME || github.repository_owner }}
           public-password: ${{ env.DOCKER_PASSWORD || secrets.DOCKER_PASSWORD }}
+
+          push-to-prime: true
+          prime-registry: ${{ env.PRIME_STG_REGISTRY }}
+          prime-repo: rancher
+          prime-username: ${{ env.PRIME_STG_REGISTRY_USERNAME }}
+          prime-password: ${{ env.PRIME_STG_REGISTRY_PASSWORD }}
+      - name: Build and push PushProx image (prime prod)
+        if: ${{ steps.semver_check.outputs.HAS_PRERELEASE == 'false' }}
+        uses: rancher/ecm-distro-tools/actions/publish-image@master
+        with:
+          image: 'pushprox'
+          tag: ${{ github.ref_name }}
+
+          push-to-public: false
 
           push-to-prime: true
           prime-registry: ${{ env.PRIME_REGISTRY }}
