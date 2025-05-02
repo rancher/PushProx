@@ -9,3 +9,4 @@ RUN make ci
 FROM registry.suse.com/bci/bci-micro:latest
 COPY --from=builder /usr/src/app/bin/pushprox-proxy /usr/bin
 COPY --from=builder /usr/src/app/bin/pushprox-client /usr/bin
+CMD ["pushprox-proxy"]
