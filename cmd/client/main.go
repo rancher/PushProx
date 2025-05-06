@@ -34,7 +34,7 @@ import (
 	kingpin "github.com/alecthomas/kingpin/v2"
 
 	"github.com/Showmax/go-fqdn"
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/promslog"
@@ -88,7 +88,6 @@ func newBackOffFromFlags() backoff.BackOff {
 	b.InitialInterval = *retryInitialWait
 	b.Multiplier = 1.5
 	b.MaxInterval = *retryMaxWait
-	b.MaxElapsedTime = time.Duration(0)
 	return b
 }
 
@@ -238,15 +237,16 @@ func (c *Coordinator) doPoll(client *http.Client) error {
 	return nil
 }
 
-func (c *Coordinator) loop(bo backoff.BackOff, client *http.Client) {
-	op := func() error {
-		return c.doPoll(client)
+func (c *Coordinator) loop(ctx context.Context, bo backoff.BackOff, client *http.Client) {
+	op := func() (int, error) {
+		return 0, c.doPoll(client)
 	}
 
 	for {
-		if err := backoff.RetryNotify(op, bo, func(_ error, _ time.Duration) {
+		_, err := backoff.Retry(ctx, op, backoff.WithBackOff(bo), backoff.WithMaxElapsedTime(time.Duration(0)), backoff.WithNotify(func(_ error, _ time.Duration) {
 			pollErrorCounter.Inc()
-		}); err != nil {
+		}))
+		if err != nil {
 			c.logger.Error("backoff returned error", "error", err)
 		}
 	}
@@ -330,5 +330,5 @@ func main() {
 
 	client := &http.Client{Transport: transport}
 
-	coordinator.loop(newBackOffFromFlags(), client)
+	coordinator.loop(context.Background(), newBackOffFromFlags(), client)
 }
