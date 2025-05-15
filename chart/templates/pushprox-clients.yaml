@@ -41,7 +41,7 @@ spec:
       {{- end }}
       containers:
       - name: pushprox-client
-        image: {{ template "system_default_registry" . }}{{ .Values.clients.image.repository }}:{{ .Values.clients.image.tag }}
+        image: {{ template "system_default_registry" . }}{{ template "clients.imageRepo" . }}:{{ template "clients.imageTag" . }}
         command:
         {{- range .Values.clients.command }}
           - {{ . | quote }}
