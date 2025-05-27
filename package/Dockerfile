@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 COPY ../go.mod go.sum ./
 RUN go mod download
 COPY .. .
-RUN make ci
+RUN make build
 
 FROM registry.suse.com/bci/bci-micro:latest
 COPY --from=builder /usr/src/app/bin/pushprox-proxy /usr/bin
