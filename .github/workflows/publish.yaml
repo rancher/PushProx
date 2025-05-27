@@ -72,23 +72,7 @@ jobs:
           go-version: 1.23
       - name: Check SemVer Characteristics
         id: semver_check
-        run: |
-          tag="${{ github.ref_name }}"
-          if [[ "$tag" == v* ]]; then
-            tag="${tag:1}"
-          fi
-          has_prerelease() { [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+- ]]; }
-          has_build_meta() { [[ "$1" =~ \+ ]]; }
-          if has_prerelease "$tag"; then
-            echo "HAS_PRERELEASE=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "HAS_PRERELEASE=false" >> "$GITHUB_OUTPUT"
-          fi
-          if has_build_meta "$tag"; then
-            echo "HAS_BUILD_META=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "HAS_BUILD_META=false" >> "$GITHUB_OUTPUT"
-          fi
+        run: bash ./.github/scripts/check-semver "${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
       - name: Build and push PushProx image (dockerhub and prime stg)
         uses: rancher/ecm-distro-tools/actions/publish-image@master
         with:
