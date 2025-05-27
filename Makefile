@@ -1,6 +1,15 @@
-MACHINE := rancher
-BUILDX_ARGS ?= --sbom=true --attest type=provenance,mode=max
-IMAGE := pushprox
+# Include logic that can be reused across projects.
+include hack/make/build.mk
+
+# Define target platforms, image builder and the fully qualified image name.
+TARGET_PLATFORMS ?= linux/amd64,linux/arm64
+
+REPO ?= rancher
+IMAGE ?= pushprox
+IMAGE_NAME = $(REPO)/$(IMAGE)
+FULL_IMAGE_TAG = $(IMAGE_NAME):$(TAG)
+BUILD_ACTION = --load
+
 TARGETS := $(shell ls scripts)
 
 $(TARGETS):
@@ -10,13 +19,20 @@ $(TARGETS):
 
 .PHONY: $(TARGETS)
 
-.PHONY: buildx-machine
-buildx-machine: ## create rancher dockerbuildx machine targeting platform defined by DEFAULT_PLATFORMS.
-	@docker buildx ls | grep $(MACHINE) || docker buildx create --name=$(MACHINE) --platform=$(TARGET_PLATFORMS)
+.PHONY: build-image
+build-image: buildx-machine ## build (and load) the container image targeting the current platform.
+	$(IMAGE_BUILDER) build -f package/Dockerfile \
+		--builder $(MACHINE) $(IMAGE_ARGS) \
+		--build-arg VERSION=$(VERSION) \
+		--platform=$(TARGET_PLATFORMS) \
+		-t "$(FULL_IMAGE_TAG)" $(BUILD_ACTION) .
+	@echo "Built $(FULL_IMAGE_TAG)"
 
 .PHONY: push-image
 push-image: buildx-machine ## build the container image targeting all platforms defined by TARGET_PLATFORMS and push to a registry.
-	docker buildx build -f package/Dockerfile \
-		--builder=$(MACHINE) $(IID_FILE_FLAG) $(BUILDX_ARGS) \
-		--platform=$(TARGET_PLATFORMS) -t $(REPO)/$(IMAGE):$(TAG) --push .
-	@echo "Pushed $(REPO)/$(IMAGE):$(TAG)"
+	$(IMAGE_BUILDER) build -f package/Dockerfile \
+		--builder $(MACHINE) $(IMAGE_ARGS) $(IID_FILE_FLAG) $(BUILDX_ARGS) \
+		--build-arg VERSION=$(VERSION) \
+		--platform=$(TARGET_PLATFORMS) \
+		-t "$(FULL_IMAGE_TAG)" --push .
+	@echo "Pushed $(FULL_IMAGE_TAG)"
