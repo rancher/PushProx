@@ -1,5 +1,5 @@
 {{- template "applyKubeVersionOverrides" . -}}
-{{- if .Values.clients }}{{- if .Values.clients.enabled }}
+{{- if and .Values.clients .Values.clients.enabled }}
 apiVersion: apps/v1
 {{- if .Values.clients.deployment.enabled }}
 kind: Deployment
@@ -41,7 +41,7 @@ spec:
       {{- end }}
       containers:
       - name: pushprox-client
-        image: {{ template "system_default_registry" . }}{{ template "clients.imageRepo" . }}:{{ template "clients.imageTag" . }}
+        image: {{ template "pushProxy.clients.container" . }}
         command:
         {{- range .Values.clients.command }}
           - {{ . | quote }}
@@ -154,4 +154,4 @@ spec:
       - name: metrics-cert-dir
         emptyDir: {}
       {{- end }}
-{{- end }}{{- end }}
+{{- end }}
