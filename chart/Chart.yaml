@@ -4,7 +4,7 @@ annotations:
   catalog.rancher.io/certified: rancher
   catalog.rancher.io/namespace: cattle-monitoring-system
   catalog.rancher.io/release-name: rancher-pushprox
-apiVersion: v1
+apiVersion: v2
 appVersion: v9.9.9
 description: Sets up a deployment of the PushProx proxy and a DaemonSet of PushProx
   clients.
