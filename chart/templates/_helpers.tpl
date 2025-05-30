@@ -6,45 +6,45 @@
 {{- end -}}
 {{- end -}}
 
-{{- define "proxy.imageRepo" -}}
-{{ if and .Values.global.pushProx (and .Values.global.pushProx.image .Values.global.pushProx.proxyImage) }}
-{{- default .Values.proxy.image.repository (default .Values.global.pushProx.image.repository .Values.global.pushProx.proxyImage.repository) -}}
+{{ define "proxy.imageRepo" -}}
+{{ if and .Values.global.pushProx (or .Values.global.pushProx.image .Values.global.pushProx.proxyImage) }}
+{{ default .Values.proxy.image.repository (default .Values.global.pushProx.image.repository .Values.global.pushProx.proxyImage.repository) }}
 {{ else if and .Values.global.pushProx .Values.global.pushProx.image }}
-{{- default .Values.proxy.image.repository .Values.global.pushProx.image.repository -}}
+{{ default .Values.proxy.image.repository .Values.global.pushProx.image.repository }}
 {{ else }}
 {{- .Values.proxy.image.repository -}}
 {{ end }}
-{{- end -}}
+{{ end -}}
 
-{{- define "proxy.imageTag" -}}
-{{ if and .Values.global.pushProx (and .Values.global.pushProx.image .Values.global.pushProx.proxyImage) }}
-{{- default .Values.proxy.image.tag (default .Values.global.pushProx.image.tag .Values.global.pushProx.proxyImage.tag) -}}
+{{ define "proxy.imageTag" -}}
+{{ if and .Values.global.pushProx (or .Values.global.pushProx.image .Values.global.pushProx.proxyImage) }}
+{{ default .Values.proxy.image.tag (default .Values.global.pushProx.image.tag .Values.global.pushProx.proxyImage.tag) }}
 {{ else if and .Values.global.pushProx .Values.global.pushProx.image }}
-{{- default .Values.proxy.image.tag .Values.global.pushProx.image.tag -}}
+{{ default .Values.proxy.image.tag .Values.global.pushProx.image.tag }}
 {{ else }}
 {{- .Values.proxy.image.tag -}}
 {{ end }}
-{{- end -}}
+{{ end -}}
 
-{{- define "clients.imageRepo" -}}
-{{ if and .Values.global.pushProx (and .Values.global.pushProx.image .Values.global.pushProx.clientsImage) }}
-{{- default .Values.clients.image.repository (default .Values.global.pushProx.image.repository .Values.global.pushProx.clientsImage.repository) -}}
+{{ define "clients.imageRepo" -}}
+{{ if and .Values.global.pushProx (or .Values.global.pushProx.image .Values.global.pushProx.clientsImage) }}
+{{ default .Values.clients.image.repository (default .Values.global.pushProx.image.repository .Values.global.pushProx.clientsImage.repository) }}
 {{ else if and .Values.global.pushProx .Values.global.pushProx.image }}
-{{- default .Values.clients.image.repository .Values.global.pushProx.image.repository -}}
+{{ default .Values.clients.image.repository .Values.global.pushProx.image.repository }}
 {{ else }}
 {{- .Values.clients.image.repository -}}
 {{ end }}
-{{- end -}}
+{{ end -}}
 
-{{- define "clients.imageTag" -}}
-{{ if and .Values.global.pushProx (and .Values.global.pushProx.image .Values.global.pushProx.clientsImage) }}
-{{- default .Values.clients.image.tag (default .Values.global.pushProx.image.tag .Values.global.pushProx.clientsImage.tag) -}}
+{{ define "clients.imageTag" -}}
+{{ if and .Values.global.pushProx (or .Values.global.pushProx.image .Values.global.pushProx.clientsImage) }}
+{{ default .Values.clients.image.tag (default .Values.global.pushProx.image.tag .Values.global.pushProx.clientsImage.tag) }}
 {{ else if and .Values.global.pushProx .Values.global.pushProx.image }}
-{{- default .Values.clients.image.tag .Values.global.pushProx.image.tag -}}
+{{ default .Values.clients.image.tag .Values.global.pushProx.image.tag }}
 {{ else }}
 {{- .Values.clients.image.tag -}}
 {{ end }}
-{{- end -}}
+{{ end -}}
 
 # Windows Support
 
