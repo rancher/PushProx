@@ -19,7 +19,7 @@ if ! hash helm 2>/dev/null; then
     exit 1
 fi
 
-cd $(dirname $0)/..
+cd "$(dirname "$0")/.."
 source ./scripts/version
 
 
@@ -27,7 +27,7 @@ rm -rf build/chart
 mkdir -p build dist/artifacts
 cp -rf chart build/
 
-edit-chart ${HELM_CHART_VERSION} ${HELM_IMAGE_TAG}
+edit-chart "${HELM_CHART_VERSION}" "${HELM_IMAGE_TAG}"
 
 if ! package-chart; then
     echo "Packaging rancher-pushprox chart failed!"
