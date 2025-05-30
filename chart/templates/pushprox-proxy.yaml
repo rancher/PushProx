@@ -32,7 +32,7 @@ spec:
       {{- end }}
       containers:
       - name: pushprox-proxy
-        image: {{ template "system_default_registry" . }}{{ template "proxy.imageRepo" . }}:{{ template "proxy.imageTag" . }}
+        image: {{ template "proxy.container" . }}
         command:
         {{- range .Values.proxy.command }}
           - {{ . | quote }}
