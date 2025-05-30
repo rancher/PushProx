@@ -1,5 +1,5 @@
 {{- template "applyKubeVersionOverrides" . -}}
-{{- if and .Values.proxy }}{{ if .Values.proxy.enabled }}
+{{- if and .Values.proxy .Values.proxy.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,7 +32,7 @@ spec:
       {{- end }}
       containers:
       - name: pushprox-proxy
-        image: {{ template "proxy.container" . }}
+        image: {{ template "pushProxy.proxy.container" . }}
         command:
         {{- range .Values.proxy.command }}
           - {{ . | quote }}
@@ -54,4 +54,4 @@ spec:
     protocol: TCP
     targetPort: {{ .Values.proxy.port }}
   selector: {{ include "pushProxy.proxy.labels" . | nindent 4 }}
-{{- end }}{{- end }}
+{{- end }}
