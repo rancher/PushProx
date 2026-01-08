@@ -24,16 +24,14 @@ jobs:
             - platform: linux/arm64
     steps:
       - name : Checkout repository
-        uses : actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses : actions/checkout@v6
       - name : Set up Go
-        uses : actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
+        uses : actions/setup-go@v6
         with:
           go-version: 1.23
       - name: Install helm
-        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: azure/setup-helm@v4.3.0
       - name: Install Helm-unittest
-        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git
       - name : CI
         run : make ci
