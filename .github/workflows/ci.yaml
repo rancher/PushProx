@@ -32,6 +32,6 @@ jobs:
       - name: Install helm
         uses: azure/setup-helm@v4.3.0
       - name: Install Helm-unittest
-        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git
+        run: helm plugin install --verify=false https://github.com/helm-unittest/helm-unittest.git
       - name : CI
         run : make ci
