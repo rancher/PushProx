@@ -14,6 +14,8 @@ global:
     systemDefaultRegistry: ""
   seLinux:
     enabled: false
+  # imagePullSecretName: ""  # (deprecated) Use imagePullSecrets instead for multiple secrets
+  # imagePullSecrets: []     # List of image pull secret names (e.g., ["credentials-harbor", "docker-registry"])
 
 # A list of Semver constraint strings (defined by https://github.com/Masterminds/semver) and values.yaml overrides.
 #

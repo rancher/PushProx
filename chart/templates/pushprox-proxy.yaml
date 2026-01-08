@@ -26,7 +26,12 @@ spec:
 {{ toYaml .Values.proxy.tolerations | indent 8 }}
 {{- end }}
       serviceAccountName: {{ template "pushProxy.proxy.name" . }}
-      {{- if .Values.global.imagePullSecretName }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+      - name: {{ . }}
+      {{- end }}
+      {{- else if .Values.global.imagePullSecretName }}
       imagePullSecrets:
       - name: {{ .Values.global.imagePullSecretName }}
       {{- end }}

@@ -20,21 +20,22 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name : Checkout repository
+        uses : actions/checkout@v6
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
-      - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
+      - name : Set up Go
+        uses : actions/setup-go@v6
         with:
           go-version: 1.23
       - name: Install helm
-        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: azure/setup-helm@v4.3.0
       - name: Package release helm charts
         run: make package-helm
       - run: mkdir -p ./build/artifacts/ && mv -v ./dist/artifacts/ ./build/
-      - uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: latest
@@ -65,9 +66,9 @@ jobs:
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials username | PRIME_STG_REGISTRY_USERNAME ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials password | PRIME_STG_REGISTRY_PASSWORD ;
       - name : Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name : Setup go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
+        uses : actions/checkout@v6
+      - name : Set up Go
+        uses : actions/setup-go@v6
         with:
           go-version: 1.23
       - name: Check SemVer Characteristics
