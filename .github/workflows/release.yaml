@@ -21,21 +21,21 @@ jobs:
       contents: write
     steps:
       - name : Checkout repository
-        uses : actions/checkout@v6
+        uses : actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
       - name : Set up Go
         uses : actions/setup-go@v6
         with:
-          go-version: 1.23
+          go-version: 1.26
       - name: Install helm
-        uses: azure/setup-helm@v4.3.0
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
       - name: Package release helm charts
         run: make package-helm
       - run: mkdir -p ./build/artifacts/ && mv -v ./dist/artifacts/ ./build/
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
         with:
           distribution: goreleaser
           version: latest
@@ -66,11 +66,11 @@ jobs:
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials username | PRIME_STG_REGISTRY_USERNAME ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials password | PRIME_STG_REGISTRY_PASSWORD ;
       - name : Checkout repository
-        uses : actions/checkout@v6
+        uses : actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name : Set up Go
         uses : actions/setup-go@v6
         with:
-          go-version: 1.23
+          go-version: 1.26
       - name: Check SemVer Characteristics
         id: semver_check
         run: bash ./.github/scripts/check-semver "${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
