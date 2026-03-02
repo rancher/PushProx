@@ -9,33 +9,33 @@ env:
   PUBLIC_REGISTRY: docker.io
   PUBLIC_REPO: rancher
 
+permissions:
+  contents: write
+
 jobs:
-  ci:
+  ci :
     uses: ./.github/workflows/ci.yaml
+    permissions:
+      contents: read
   goreleaser:
     needs: [
       ci
     ]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name : Checkout repository
-        uses : actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
       - run: git fetch --force --tags
-      - name : Set up Go
-        uses : actions/setup-go@v6
+      - name: Install go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
-          go-version: 1.23
-      - name: Install helm
-        uses: azure/setup-helm@v4.3.0
-      - name: Package release helm charts
-        run: make package-helm
-      - run: mkdir -p ./build/artifacts/ && mv -v ./dist/artifacts/ ./build/
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+          go-version: 1.24
+      - name : Package release helm charts
+        run : make package-helm
+      - run : mkdir -p ./build/artifacts/ && mv -v ./dist/artifacts/ ./build/
+      - uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # v7.0.0
         with:
           distribution: goreleaser
           version: latest
@@ -53,27 +53,20 @@ jobs:
       contents : read
       id-token: write
     steps:
-      - name : "Read Secrets"
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name : "Read vault secrets"
         uses : rancher-eio/read-vault-secrets@main
         with:
           secrets: |
             secret/data/github/repo/${{ github.repository }}/dockerhub/rancher/credentials username | DOCKER_USERNAME ;
             secret/data/github/repo/${{ github.repository }}/dockerhub/rancher/credentials password | DOCKER_PASSWORD ;
-            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials registry | PRIME_REGISTRY ;
-            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials username | PRIME_REGISTRY_USERNAME ;
-            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials password | PRIME_REGISTRY_PASSWORD ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials registry | PRIME_STG_REGISTRY ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials username | PRIME_STG_REGISTRY_USERNAME ;
             secret/data/github/repo/${{ github.repository }}/rancher-prime-stg-registry/credentials password | PRIME_STG_REGISTRY_PASSWORD ;
-      - name : Checkout repository
-        uses : actions/checkout@v6
-      - name : Set up Go
-        uses : actions/setup-go@v6
-        with:
-          go-version: 1.23
-      - name: Check SemVer Characteristics
-        id: semver_check
-        run: bash ./.github/scripts/check-semver "${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+        # This encapsulates: login, qemu, build/push
       - name: Build and push PushProx image (dockerhub and prime stg)
         uses: rancher/ecm-distro-tools/actions/publish-image@master
         with:
@@ -90,6 +83,20 @@ jobs:
           prime-repo: rancher
           prime-username: ${{ env.PRIME_STG_REGISTRY_USERNAME }}
           prime-password: ${{ env.PRIME_STG_REGISTRY_PASSWORD }}
+
+      - name: Check SemVer Characteristics
+        id: semver_check
+        run: bash ./.github/scripts/check-semver "${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      - name : "Read vault secrets"
+        if: ${{ steps.semver_check.outputs.HAS_PRERELEASE == 'false' }}
+        uses : rancher-eio/read-vault-secrets@main
+        with:
+          secrets: |
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials registry | PRIME_REGISTRY ;
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials username | PRIME_REGISTRY_USERNAME ;
+            secret/data/github/repo/${{ github.repository }}/rancher-prime-registry/credentials password | PRIME_REGISTRY_PASSWORD ;
+
       - name: Build and push PushProx image (prime prod)
         if: ${{ steps.semver_check.outputs.HAS_PRERELEASE == 'false' }}
         uses: rancher/ecm-distro-tools/actions/publish-image@master
