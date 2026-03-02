@@ -18,14 +18,6 @@ on:
         options:
           - "false"
           - "true"
-      configMigration:
-        description: "Toggle PRs for config migration"
-        required: false
-        default: "true"
-        type: choice
-        options:
-          - "false"
-          - "true"
       renovateConfig:
         description: "Define a custom renovate config file"
         required: false
@@ -43,7 +35,6 @@ jobs:
   call-workflow:
     uses: rancher/renovate-config/.github/workflows/renovate-vault.yml@release
     with:
-      configMigration: ${{ inputs.configMigration || 'true' }}
       logLevel: ${{ inputs.logLevel || 'info' }}
       overrideSchedule: ${{ github.event.inputs.overrideSchedule == 'true' && '{''schedule'':null}' || '' }}
       renovateConfig: ${{ inputs.renovateConfig || '.github/renovate.json' }}
