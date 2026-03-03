@@ -28,9 +28,9 @@ jobs:
       - name: Install go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
-          go-version: 1.24
+          go-version: 1.26
       - name: Install helm
-        uses: azure/setup-helm@v4.3.1
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
       - name: Install Helm-unittest
         run: helm plugin install --verify=false https://github.com/helm-unittest/helm-unittest.git
       - name : CI
