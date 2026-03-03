@@ -1,5 +1,5 @@
 FROM registry.suse.com/bci/golang:1.24 AS builder
-RUN go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.10.1
+RUN go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
 WORKDIR /usr/src/app
 COPY ../go.mod go.sum ./
 RUN go mod download
