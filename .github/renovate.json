@@ -4,10 +4,15 @@
     "group:allNonMajor",
     "helpers:pinGitHubActionDigests"
   ],
-  "baseBranches": ["master"],
+  "baseBranchPatterns": [
+    "master"
+  ],
   "packageRules": [
     {
-      "matchPackageNames": ["go", "actions/setup-go"],
+      "matchPackageNames": [
+        "go",
+        "actions/setup-go"
+      ],
       "enabled": false
     },
     {
@@ -25,7 +30,9 @@
       ]
     },
     {
-      "matchBaseBranches": ["master"],
+      "matchBaseBranches": [
+        "master"
+      ],
       "matchPackageNames": [
         "golang"
       ],
@@ -41,7 +48,10 @@
       "matchPackageNames": [
         "github.com/cenkalti/backoff/**"
       ],
-      "matchUpdateTypes": ["minor","patch"]
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
     }
   ]
 }
