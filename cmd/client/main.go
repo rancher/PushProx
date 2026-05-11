@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log/slog"
 	"net"
 	"net/http"
@@ -132,7 +131,7 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	}
 
 	if *tokenPath != "" {
-		token, err := ioutil.ReadFile(*tokenPath)
+		token, err := os.ReadFile(*tokenPath)
 		if err != nil {
 			c.handleErr(request, client, fmt.Errorf("cannot read token from token-path"))
 			return
