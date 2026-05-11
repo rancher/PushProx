@@ -17,6 +17,8 @@ jobs:
   build:
     name : Build, test  & validate
     runs-on : ubuntu-latest
+    container:
+      image: ghcr.io/rancher/ci-image/go1.25:20260430-14
     strategy:
       matrix:
           include:
@@ -25,12 +27,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Install go
-        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
-        with:
-          go-version: 1.25
-      - name: Install helm
-        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
       - name: Install Helm-unittest
         run: helm plugin install --verify=false https://github.com/helm-unittest/helm-unittest.git
       - name : CI
