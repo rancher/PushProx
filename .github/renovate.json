@@ -36,13 +36,13 @@
       "matchPackageNames": [
         "golang"
       ],
-      "allowedVersions": "<1.24.0"
+      "allowedVersions": "<1.26.0"
     },
     {
       "matchDatasources": [
         "golang-version"
       ],
-      "allowedVersions": "<1.24.0"
+      "allowedVersions": "<1.26.0"
     },
     {
       "matchPackageNames": [
