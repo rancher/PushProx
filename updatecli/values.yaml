@@ -4,5 +4,5 @@ github:
   username: "UPDATECLI_GITHUB_ACTOR"
   token: "UPDATECLI_GITHUB_TOKEN"
   repository: "PushProx"
-  branch: "main"
+  branch: "master"
   owner: "rancher"
